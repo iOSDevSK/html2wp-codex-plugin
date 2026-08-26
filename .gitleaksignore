@@ -1,0 +1,11 @@
+# Findings that are fixtures, not secrets.
+#
+# test-payload-allowlist.py writes files whose CONTENT is a key header and
+# nothing else — no key material — because the test's whole point is proving
+# the build sandbox withholds them. The current file carries `gitleaks:allow`;
+# this entry covers the commit that introduced it before the annotation, which
+# a full-history scan still reaches.
+#
+# Never add a line here for a real credential. The fix for one of those is to
+# rotate it, not to silence the scanner.
+3428324f0f6364d5e81fbc0e82759dc5b2cffc99:plugins/html2wp/skills/html2wp/assets/scripts/test-payload-allowlist.py:private-key:102

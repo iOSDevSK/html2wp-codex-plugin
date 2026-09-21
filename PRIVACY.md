@@ -60,7 +60,8 @@ days**.
 
 One row per conversion: how many pages, how many chrome variants, whether it
 had a blog or a shop, whether it was a re-run, which stage refused if one did,
-and the generator's own warnings about itself. The warnings are redacted —
+how long each of the service's own scripts ran, and the generator's own
+warnings about itself. The warnings are redacted —
 page filenames and URLs are replaced before the row is written. Kept **365
 days**. No content, no addresses, no identifiers for the site.
 
@@ -74,8 +75,10 @@ would not want kept for that long.
 
 - **Free tier:** counted per network address, as seen by Cloudflare. Stored as
   a truncated hash, never as an address.
-- **Licensed:** by the licence key, also stored as a hash. Validated against
-  UpdatePulse (`updates.designready.studio`), which sees the key.
+- **Licensed:** by the licence key, also stored as a hash. The key travels
+  only to `api.html2wp.dev`; the service validates it server-side against
+  UpdatePulse (`updates.designready.studio`), which therefore also sees it.
+  Nothing on your machine contacts UpdatePulse directly.
 
 ## Who else is involved
 

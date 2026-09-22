@@ -62,9 +62,15 @@ jobs:
       - name: security regressions
         run: |
           cd plugins/html2wp/skills/html2wp/assets/scripts
-          for t in test-safe-path.sh test-secret-payload.sh test-upload-bounded.sh test-ssrf-guard.sh test-build-sandbox.sh; do
+          for t in test-safe-path.sh test-secret-payload.sh test-upload-bounded.sh test-retry-waits.sh test-ssrf-guard.sh test-build-sandbox.sh; do
             echo "── $t"
             bash "$t"
+          done
+          # Python-native, so it is run directly rather than through a .sh
+          # wrapper that would exist only to call it.
+          for t in test-served-assets.py test-payload-allowlist.py test-cleanup-guard.sh; do
+            echo "── $t"
+            case "$t" in *.py) python3 "$t" ;; *) bash "$t" ;; esac
           done
 
       # The failure this prevents is documented behaviour, not a theory:
@@ -140,9 +146,23 @@ jobs:
           # files mention make-theme.mjs in a comment explaining what they
           # share with it, so a name-based grep reports hits on a clean tree
           # and becomes a check people learn to ignore.
+          #
+          # The Gutenberg compiler is the second generator. Its client half
+          # (prepare-block-plan.mjs, gutenberg-*.py) ships, so these are
+          # exact names, never a *gutenberg* pattern.
+          #
+          # The generators' own libraries follow. The client shares other
+          # libraries with them (selector.mjs, nav-stamp.mjs), so these are
+          # named one by one too. The list is tools/sync-lib.sh's moat_scan.
           found=$(find . -path ./.git -prune -o \
             \( -name 'make-theme.mjs' -o -name 'dist-to-bundle.mjs' \
                -o -name 'build-posts.mjs' -o -name 'build-products.mjs' \
+               -o -name 'make-gutenberg-theme.mjs' -o -name 'gutenberg-compiler.mjs' \
+               -o -name 'gutenberg-blocks.mjs' -o -name 'gutenberg-blocks-extra.mjs' \
+               -o -name 'gutenberg-editor-css.mjs' \
+               -o -name 'asset-refs.mjs' -o -name 'card-category.mjs' -o -name 'dates.mjs' \
+               -o -name 'price-region.mjs' -o -name 'site-chrome.mjs' -o -name 'trailing-roles.mjs' \
+               -o -name 'product-read.mjs' -o -name 'class-transplant.mjs' -o -name 'cart-parts.mjs' \
                -o -name 'visual-edit.zip' -o -name 'THREAT-MODEL.md' \
                -o -name 'gotcha-classification.md' -o -type d -name templates \) -print)
           if [ -n "$found" ]; then
